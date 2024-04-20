@@ -1,0 +1,28 @@
+package main
+
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+)
+
+func main() {
+	// YAML data as a string
+	yamlData := `
+control_feature:
+  name: "Control Feature"
+  description: "This YAML file is used to control the feature."
+  version: 1.0
+  active: true
+  details:
+    - detail1
+    - detail2
+`
+	// Write YAML data to a file named "control_feature.yaml"
+	err := ioutil.WriteFile("control_feature.yaml", []byte(yamlData), 0644)
+	if err != nil {
+		log.Fatalf("Error writing file: %v", err)
+	}
+
+	fmt.Println("YAML file created: control_feature.yaml")
+}
