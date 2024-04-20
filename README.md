@@ -1,5 +1,5 @@
 # op-be-graphql
-The GraphQL Services for the Backend Layer of OctopOSPrime
+The GraphQL Services for the Backend Layer of OctopOSPrime ( Edited )
 
 [![Build - Test](https://github.com/octoposprime/op-be-graphql/actions/workflows/ci.yml/badge.svg)](https://github.com/octoposprime/op-be-graphql/actions/workflows/ci.yml)
 [![Docker Image Publish](https://github.com/octoposprime/op-be-graphql/actions/workflows/cd.yml/badge.svg)](https://github.com/octoposprime/op-be-graphql/actions/workflows/cd.yml)
