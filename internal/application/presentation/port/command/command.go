@@ -6,4 +6,5 @@ type CommandPort interface {
 	LoggingCommandPort
 	UserCommandPort
 	AuthenticationCommandPort
+	DlrCommandPort
 }

@@ -141,7 +141,7 @@ extend type Mutation {
   updateUserStatus(user: UserInput!): User! @goField(forceResolver: true) @auth(policy: "user.update.status")
   """Delete User EP deletes User that is given ID and returns it"""
   deleteUser(Id: ID!): User! @goField(forceResolver: true) @auth(policy: "user.delete")
-    """Change User Password EP updates given user password"""
+  """Change User Password EP updates given user password"""
   changeUserPassword(userPassword: UserPasswordInput!): Boolean @goField(forceResolver: true) @auth(policy: "user.change.password")
 }
 
