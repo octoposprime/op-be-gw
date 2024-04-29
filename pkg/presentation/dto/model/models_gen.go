@@ -15,6 +15,97 @@ type AuthOps struct {
 	Auth bool `json:"Auth"`
 }
 
+// Dlr represents the basic values of the dlr
+type Dlr struct {
+	// Id is the id of the dlr
+	ID string `json:"Id"`
+	// DlrType is the type of the dlr
+	DlrType DlrType `json:"DlrType"`
+	// DlrStatus is the status of the dlr
+	DlrStatus DlrStatus `json:"DlrStatus"`
+	// DlrBase is the base values of the dlr
+	DlrBase *DlrBase `json:"DlrBase"`
+	// DlrCore is the core values of the dlr
+	DlrCore *DlrCore `json:"DlrCore"`
+	// CreatedAt is the create time of the dlr
+	CreatedAt time.Time `json:"CreatedAt"`
+	// UpdatedAt is the update time of the dlr
+	UpdatedAt time.Time `json:"UpdatedAt"`
+}
+
+// DlrBase represents the base values of the dlr
+type DlrBase struct {
+	// Tags are the tag labels of the dlr
+	Tags []string `json:"Tags"`
+}
+
+// DlrBase represents the base values of the dlr
+type DlrBaseInput struct {
+	// Tags are the tag labels of the dlr
+	Tags []string `json:"Tags,omitempty"`
+}
+
+// DlrCore represents the core values of the dlr
+type DlrCore struct {
+	// DlrData is the dlr data of the dlr
+	DlrData string `json:"DlrData"`
+}
+
+// DlrCore represents the core values of the dlr
+type DlrCoreInput struct {
+	// DlrData is the dlr data of the dlr
+	DlrData *string `json:"DlrData,omitempty"`
+}
+
+// DlrFilterInput is used for filtering the Dlrs
+type DlrFilterInput struct {
+	// Id is the id of the dlr
+	ID *string `json:"Id,omitempty"`
+	// DlrType is the type of the dlr
+	DlrType *DlrType `json:"DlrType,omitempty"`
+	// DlrStatus is the status of the dlr
+	DlrStatus *DlrStatus `json:"DlrStatus,omitempty"`
+	// Tags are the tag labels of the dlr
+	Tags []string `json:"Tags,omitempty"`
+	// CreatedAtFrom is the start value of the create time of the dlr
+	CreatedAtFrom *time.Time `json:"CreatedAtFrom,omitempty"`
+	// CreatedAtTo is the end value of the create time of the dlr
+	CreatedAtTo *time.Time `json:"CreatedAtTo,omitempty"`
+	// UpdatedAtFrom is the start value of the update time of the dlr
+	UpdatedAtFrom *time.Time `json:"UpdatedAtFrom,omitempty"`
+	// UpdatedAtTo is the end value of the update time of the dlr
+	UpdatedAtTo *time.Time `json:"UpdatedAtTo,omitempty"`
+	// SearchText is the value of the full text search
+	SearchText *string `json:"SearchText,omitempty"`
+	// SortType is the sorting type. It can be only ASC or DESC
+	SortType *string `json:"SortType,omitempty"`
+	// SortField is the sortable field of the dlr
+	SortField *DlrSortField `json:"SortField,omitempty"`
+	// PageInput is used for pagination
+	Pagination *PageInput `json:"Pagination,omitempty"`
+}
+
+// Dlr represents the basic values of the dlr
+type DlrInput struct {
+	// Id is the id of the dlr
+	ID *string `json:"Id,omitempty"`
+	// DlrStatus is the status of the dlr
+	DlrType *DlrType `json:"DlrType,omitempty"`
+	// DlrStatus is the status of the dlr
+	DlrStatus *DlrStatus `json:"DlrStatus,omitempty"`
+	// DlrBase is the base values of the dlr
+	DlrBase *DlrBaseInput `json:"DlrBase,omitempty"`
+	// DlrCore is the core values of the dlr
+	DlrCore *DlrCoreInput `json:"DlrCore,omitempty"`
+}
+
+type Dlrs struct {
+	// The total number of Dlrs that match the filter
+	Total int32 `json:"Total"`
+	// The Dlrs that match the filter
+	Dlrs []*Dlr `json:"Dlrs"`
+}
+
 // Error represents the built-in error message
 type Error struct {
 	Error string `json:"Error"`
@@ -222,6 +313,141 @@ type Users struct {
 	Total int32 `json:"Total"`
 	// The Users that match the filter
 	Users []*User `json:"Users"`
+}
+
+type DlrSortField string
+
+const (
+	// No Type
+	DlrSortFieldNone DlrSortField = "None"
+	// Id
+	DlrSortFieldID DlrSortField = "Id"
+	// Created Time
+	DlrSortFieldCreatedAt DlrSortField = "CreatedAt"
+	// Updated Time
+	DlrSortFieldUpdatedAt DlrSortField = "UpdatedAt"
+)
+
+var AllDlrSortField = []DlrSortField{
+	DlrSortFieldNone,
+	DlrSortFieldID,
+	DlrSortFieldCreatedAt,
+	DlrSortFieldUpdatedAt,
+}
+
+func (e DlrSortField) IsValid() bool {
+	switch e {
+	case DlrSortFieldNone, DlrSortFieldID, DlrSortFieldCreatedAt, DlrSortFieldUpdatedAt:
+		return true
+	}
+	return false
+}
+
+func (e DlrSortField) String() string {
+	return string(e)
+}
+
+func (e *DlrSortField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DlrSortField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DlrSortField", str)
+	}
+	return nil
+}
+
+func (e DlrSortField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type DlrStatus string
+
+const (
+	// No Type
+	DlrStatusNone DlrStatus = "NONE"
+	// Active
+	DlrStatusActive DlrStatus = "ACTIVE"
+	// Inactive
+	DlrStatusInactive DlrStatus = "INACTIVE"
+)
+
+var AllDlrStatus = []DlrStatus{
+	DlrStatusNone,
+	DlrStatusActive,
+	DlrStatusInactive,
+}
+
+func (e DlrStatus) IsValid() bool {
+	switch e {
+	case DlrStatusNone, DlrStatusActive, DlrStatusInactive:
+		return true
+	}
+	return false
+}
+
+func (e DlrStatus) String() string {
+	return string(e)
+}
+
+func (e *DlrStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DlrStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DlrStatus", str)
+	}
+	return nil
+}
+
+func (e DlrStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type DlrType string
+
+const (
+	// No Type
+	DlrTypeNone DlrType = "NONE"
+)
+
+var AllDlrType = []DlrType{
+	DlrTypeNone,
+}
+
+func (e DlrType) IsValid() bool {
+	switch e {
+	case DlrTypeNone:
+		return true
+	}
+	return false
+}
+
+func (e DlrType) String() string {
+	return string(e)
+}
+
+func (e *DlrType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DlrType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DlrType", str)
+	}
+	return nil
+}
+
+func (e DlrType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type PasswordStatus string
