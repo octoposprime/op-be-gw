@@ -7,5 +7,6 @@ type ServicePort interface {
 	LoggingServicePort
 	UserServicePort
 	AuthenticationServicePort
+	AuthorizationServicePort
 	DlrServicePort
 }

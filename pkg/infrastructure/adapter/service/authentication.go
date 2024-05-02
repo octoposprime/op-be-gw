@@ -14,7 +14,7 @@ import (
 
 // Login generates an authentication token if the given users are valid.
 func (a ServiceAdapter) Login(ctx context.Context, loginRequest *pb.LoginRequest) (*pb.Token, error) {
-	conn, err := grpc.Dial(tconfig.GetInternalConfigInstance().Grpc.UserHost+":"+tconfig.GetInternalConfigInstance().Grpc.UserPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(tconfig.GetInternalConfigInstance().Grpc.AuthenticationHost+":"+tconfig.GetInternalConfigInstance().Grpc.AuthenticationPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
 		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "Login", userId, err.Error()))
@@ -32,7 +32,7 @@ func (a ServiceAdapter) Login(ctx context.Context, loginRequest *pb.LoginRequest
 
 // Refresh regenerate an authentication token.
 func (a ServiceAdapter) Refresh(ctx context.Context, token *pb.Token) (*pb.Token, error) {
-	conn, err := grpc.Dial(tconfig.GetInternalConfigInstance().Grpc.UserHost+":"+tconfig.GetInternalConfigInstance().Grpc.UserPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(tconfig.GetInternalConfigInstance().Grpc.AuthenticationHost+":"+tconfig.GetInternalConfigInstance().Grpc.AuthenticationPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
 		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "Refresh", userId, err.Error()))
@@ -50,7 +50,7 @@ func (a ServiceAdapter) Refresh(ctx context.Context, token *pb.Token) (*pb.Token
 
 // Logout clears some footprints for the user.
 func (a ServiceAdapter) Logout(ctx context.Context, token *pb.Token) error {
-	conn, err := grpc.Dial(tconfig.GetInternalConfigInstance().Grpc.UserHost+":"+tconfig.GetInternalConfigInstance().Grpc.UserPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(tconfig.GetInternalConfigInstance().Grpc.AuthenticationHost+":"+tconfig.GetInternalConfigInstance().Grpc.AuthenticationPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
 		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "Logout", userId, err.Error()))

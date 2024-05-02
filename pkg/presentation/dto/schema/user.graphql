@@ -148,10 +148,6 @@ extend type Mutation {
 enum UserType {
   """No Type"""
 	NONE
-  """Admin"""
-	ADMIN
-  """User"""
-	USER
 }
 
 enum UserSortField {

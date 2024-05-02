@@ -10,3 +10,7 @@ grpc:
   logger_port: "18080"
   user_host: "op-be-user"
   user_port: "18080"
+  authentication_host: "op-be-auth"
+  authentication_port: "18080"
+  authorization_host: "op-be-auth"
+  authorization_port: "18080"

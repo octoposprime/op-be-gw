@@ -10,18 +10,23 @@ import (
 	mo "github.com/octoposprime/op-be-graphql/internal/domain/model/object"
 	presentation "github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model"
 	smodel "github.com/octoposprime/op-be-shared/pkg/model"
-	pb_dlr "github.com/octoposprime/op-be-shared/pkg/proto/pb/dlr"
+	pb_auth "github.com/octoposprime/op-be-shared/pkg/proto/pb/authorization"
 	pb_user "github.com/octoposprime/op-be-shared/pkg/proto/pb/user"
-
 )
 
 // CreateDlr is the resolver for the createDlr field.
 func (r *mutationResolver) CreateDlr(ctx context.Context, dlr presentation.DlrInput) (*presentation.Dlr, error) {
 	userId := ctx.Value(smodel.QueryKeyUid).(string)
-	userType := ctx.Value(smodel.QueryKeyUType).(pb_user.UserType)
-	if userType != pb_user.UserType_UserTypeADMIN {
-		user.ID = &userId
+
+	dlrID := ""
+	if dlr.ID != nil {
+		dlrID = *dlr.ID
 	}
+
+	if authResponse, err := r.CommandHandler.CheckAuth(ctx, &pb_auth.AuthRequest{EntityType: "dlr", EntityId: dlrID, UserId: userId, Action: "create"}); !authResponse.IsAuthorized || err != nil {
+		return nil, mo.ErrorUnauthorized
+	}
+
 	dtoData := presentation.NewDlrDto(&dlr)
 	resultData, err := r.CommandHandler.CreateDlr(ctx, dtoData.ToPb())
 	if err != nil {
