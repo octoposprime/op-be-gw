@@ -14,3 +14,5 @@ grpc:
   authentication_port: "18084"
   authorization_host: "localhost"
   authorization_port: "18084"
+  dlr_host: "op-be-dlr"
+  dlr_port: "18080"

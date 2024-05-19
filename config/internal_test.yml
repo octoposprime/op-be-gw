@@ -14,3 +14,5 @@ grpc:
   authentication_port: "18080"
   authorization_host: "op-be-auth"
   authorization_port: "18080"
+  dlr_host: "op-be-dlr"
+  dlr_port: "18080"
