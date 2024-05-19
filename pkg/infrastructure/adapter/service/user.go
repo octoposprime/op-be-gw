@@ -78,7 +78,7 @@ func (a ServiceAdapter) UpdateUserBase(ctx context.Context, user *pb.User) (*pb.
 	conn, err := grpc.Dial(tconfig.GetInternalConfigInstance().Grpc.UserHost+":"+tconfig.GetInternalConfigInstance().Grpc.UserPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateUserStatus", userId, err.Error()))
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateUserBase", userId, err.Error()))
 		return &pb.User{}, err
 	}
 
@@ -87,7 +87,7 @@ func (a ServiceAdapter) UpdateUserBase(ctx context.Context, user *pb.User) (*pb.
 	pbResult, err := pb.NewUserSvcClient(conn).UpdateUserBase(ctx, user)
 	if err != nil {
 		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
-		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateUserStatus", userId, err.Error()))
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "UpdateUserBase", userId, err.Error()))
 		return &pb.User{}, err
 	}
 	return pbResult, nil
