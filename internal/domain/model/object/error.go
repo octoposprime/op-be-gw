@@ -1,5 +1,5 @@
 package domain
-
+ 
 import (
 	"errors"
 
