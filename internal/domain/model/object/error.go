@@ -9,11 +9,13 @@ import (
 var ERRORS []error = []error{
 	ErrorNone,
 	ErrorUserNotFound,
+	ErrorDlrNotFound,
 }
 
 const (
 	ErrUser string = "user"
 	ErrDlr  string = "dlr"
+	
 )
 
 var (
@@ -28,5 +30,6 @@ func GetErrors() []error {
 		ErrorNone,
 		ErrorUserNotFound,
 		ErrorDlrNotFound,
+		
 	}
 }
