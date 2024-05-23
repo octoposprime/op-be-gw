@@ -1,6 +1,6 @@
 package domain
 
-import (
+import ( 
 	"errors"
 
 	smodel "github.com/octoposprime/op-be-shared/pkg/model"
