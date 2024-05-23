@@ -28,6 +28,6 @@ func GetErrors() []error {
 	return []error{
 		ErrorNone,
 		ErrorUserNotFound,
-		ErrorDlrNotFound,
+		
 	}
 }
