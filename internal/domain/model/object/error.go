@@ -1,6 +1,6 @@
 package domain
 
-import ( 
+import (
 	"errors"
 
 	smodel "github.com/octoposprime/op-be-shared/pkg/model"
@@ -14,7 +14,7 @@ var ERRORS []error = []error{
 
 const (
 	ErrUser string = "user"
-	ErrDlr  string = "dlr"
+	ErrDlr  string = "dlr",
 )
 
 var (
@@ -23,11 +23,6 @@ var (
 	ErrorDlrNotFound  error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrDlr + smodel.ErrSep + smodel.ErrNotFound)
 )
 
-// GetErrors returns the list of all errors
 func GetErrors() []error {
-	return []error{
-		ErrorNone,
-		ErrorUserNotFound,
-		
-	}
+	return ERRORS
 }
