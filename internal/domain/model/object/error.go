@@ -9,17 +9,25 @@ import (
 var ERRORS []error = []error{
 	ErrorNone,
 	ErrorUserNotFound,
+	ErrorDlrNotFound,
 }
 
 const (
 	ErrUser string = "user"
+	ErrDlr  string = "dlr"
 )
 
 var (
 	ErrorNone         error = nil
 	ErrorUserNotFound error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrUser + smodel.ErrSep + smodel.ErrNotFound)
+	ErrorDlrNotFound  error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrDlr + smodel.ErrSep + smodel.ErrNotFound)
 )
 
+// GetErrors returns the list of all errors
 func GetErrors() []error {
-	return ERRORS
+	return []error{
+		ErrorNone,
+		ErrorUserNotFound,
+		ErrorDlrNotFound,
+	}
 }
