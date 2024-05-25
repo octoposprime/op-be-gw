@@ -14,7 +14,7 @@ var ERRORS []error = []error{
 
 const (
 	ErrUser string = "user"
-	ErrDlr  string = "dlr",
+	ErrDlr  string = "dlr"
 )
 
 var (
