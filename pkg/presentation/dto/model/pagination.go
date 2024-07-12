@@ -1,8 +1,8 @@
 package presentation
 
-func (p *PageInput) Validate() *PageInput {
+func (p *PaginationInput) Validate() *PaginationInput {
 	if p == nil {
-		p = &PageInput{}
+		p = &PaginationInput{}
 	}
 	if p.Limit == nil {
 		p.Limit = new(int32)

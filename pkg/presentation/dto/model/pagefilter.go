@@ -1,34 +1,34 @@
 package presentation
 
 import (
-	pb "github.com/octoposprime/op-be-shared/pkg/proto/pb/dlr"
+	pb "github.com/octoposprime/op-be-shared/pkg/proto/pb/book"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// DlrFilterDto is a struct that provides filtering requested dlr data.
-type DlrFilterDto struct {
-	ModelInputData *DlrFilterInput
-	PbData         *pb.DlrFilter
+// PageFilterDto is a struct that provides filtering requested page data.
+type PageFilterDto struct {
+	ModelInputData *PageFilterInput
+	PbData         *pb.PageFilter
 }
 
-// NewDlrFilterDto creates a new *DlrFilterDto.
-func NewDlrFilterDto(modelInputData *DlrFilterInput) *DlrFilterDto {
-	return &DlrFilterDto{
+// NewPageFilterDto creates a new *PageFilterDto.
+func NewPageFilterDto(modelInputData *PageFilterInput) *PageFilterDto {
+	return &PageFilterDto{
 		ModelInputData: modelInputData,
-		PbData:         new(pb.DlrFilter),
+		PbData:         new(pb.PageFilter),
 	}
 }
 
 // ToPb converts *ModelInputData to *PbData and returns it.
-func (u *DlrFilterDto) ToPb() *pb.DlrFilter {
+func (u *PageFilterDto) ToPb() *pb.PageFilter {
 	u.PbData.Id = u.ModelInputData.ID
-	if u.ModelInputData.DlrType != nil {
-		enumVal := pb.DlrType(DlrType_value[*u.ModelInputData.DlrType])
-		u.PbData.DlrType = &enumVal
+	if u.ModelInputData.PageType != nil {
+		enumVal := pb.PageType(PageType_value[*u.ModelInputData.PageType])
+		u.PbData.PageType = &enumVal
 	}
-	if u.ModelInputData.DlrStatus != nil {
-		enumVal := pb.DlrStatus(DlrStatus_value[*u.ModelInputData.DlrStatus])
-		u.PbData.DlrStatus = &enumVal
+	if u.ModelInputData.PageStatus != nil {
+		enumVal := pb.PageStatus(PageStatus_value[*u.ModelInputData.PageStatus])
+		u.PbData.PageStatus = &enumVal
 	}
 	u.PbData.Tags = u.ModelInputData.Tags
 	if u.ModelInputData.CreatedAtFrom != nil && u.ModelInputData.CreatedAtTo != nil {
@@ -42,7 +42,7 @@ func (u *DlrFilterDto) ToPb() *pb.DlrFilter {
 	u.PbData.SearchText = u.ModelInputData.SearchText
 	u.PbData.SortType = u.ModelInputData.SortType
 	if u.ModelInputData.SortField != nil {
-		enumVal := pb.DlrSortField(DlrSortField_value[*u.ModelInputData.SortField])
+		enumVal := pb.PageSortField(PageSortField_value[*u.ModelInputData.SortField])
 		u.PbData.SortField = &enumVal
 	}
 	u.ModelInputData.Pagination = u.ModelInputData.Pagination.Validate()

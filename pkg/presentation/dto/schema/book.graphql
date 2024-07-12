@@ -1,0 +1,135 @@
+extend type Query {
+  """The Page EP returns a single Page that is given ID"""
+  page( Id: ID!): Page! @goField(forceResolver: true) @auth(policy: "page.read")
+  """The Pages EP takes filter and returns all Pages of matched with filter"""
+  pages(filter: PageFilterInput): Pages! @goField(forceResolver: true) @auth(policy: "page.list")
+}
+
+type Pages {
+  """The total number of Pages that match the filter"""
+  Total: Int!
+  """The Pages that match the filter"""
+  Pages: [Page!]!
+}
+
+"""Page represents the basic values of the page"""
+type Page {
+  """Id is the id of the page"""
+  Id: ID!
+  """PageType is the type of the page"""
+  PageType: PageType!
+  """PageStatus is the status of the page"""
+  PageStatus: PageStatus!
+  """PageBase is the base values of the page"""
+  PageBase: PageBase!
+  """PageCore is the core values of the page"""
+  PageCore: PageCore!
+  """CreatedAt is the create time of the page"""
+  CreatedAt: Timestamp!
+  """UpdatedAt is the update time of the page"""
+  UpdatedAt: Timestamp!  
+}
+
+"""PageBase represents the base values of the page"""
+type PageBase {
+  """Tags are the tag labels of the page"""
+  Tags: [String!]!
+}
+
+"""PageCore represents the core values of the page"""
+type PageCore {
+  """PageData is the page data of the page"""
+  PageData: String!
+}
+
+"""PageFilterInput is used for filtering the Pages"""
+input PageFilterInput {
+  """Id is the id of the page"""
+  Id: ID
+  """PageType is the type of the page"""
+  PageType: PageType
+  """PageStatus is the status of the page"""
+  PageStatus: PageStatus
+  """Tags are the tag labels of the page"""
+  Tags: [String!]
+  """CreatedAtFrom is the start value of the create time of the page"""
+  CreatedAtFrom: Timestamp
+  """CreatedAtTo is the end value of the create time of the page"""
+  CreatedAtTo: Timestamp
+  """UpdatedAtFrom is the start value of the update time of the page"""
+  UpdatedAtFrom: Timestamp
+  """UpdatedAtTo is the end value of the update time of the page"""
+  UpdatedAtTo: Timestamp
+  """SearchText is the value of the full text search"""
+  SearchText: String
+  """SortType is the sorting type. It can be only ASC or DESC"""
+  SortType: String
+  """SortField is the sortable field of the page"""
+  SortField: PageSortField
+  """PaginationInput is used for pagination"""
+  Pagination: PaginationInput
+}
+
+"""Page represents the basic values of the page"""
+input PageInput {
+  """Id is the id of the page"""
+  Id: ID
+  """PageStatus is the status of the page"""
+  PageType: PageType
+  """PageStatus is the status of the page"""
+  PageStatus: PageStatus
+  """PageBase is the base values of the page"""
+  PageBase: PageBaseInput
+  """PageCore is the core values of the page"""
+  PageCore: PageCoreInput
+}
+
+"""PageBase represents the base values of the page"""
+input PageBaseInput {
+  """Tags are the tag labels of the page"""
+  Tags: [String!]
+}
+
+"""PageCore represents the core values of the page"""
+input PageCoreInput {
+  """PageData is the page data of the page"""
+  PageData: String
+}
+
+extend type Mutation {
+  """Create Page EP creates a new page with given Page and returns it"""
+  createPage(page: PageInput!): Page! @goField(forceResolver: true) @auth(policy: "page.create")
+  """Update Page Base EP updates the given page's base values and returns it"""
+  updatePageBase(page: PageInput!): Page! @goField(forceResolver: true) @auth(policy: "page.update.base")
+  """Update Page Core EP updates the given page's core values and returns it"""
+  updatePageCore(page: PageInput!): Page! @goField(forceResolver: true) @auth(policy: "page.update.core")
+  """Update Page Status EP updates given page status and returns it"""
+  updatePageStatus(page: PageInput!): Page! @goField(forceResolver: true) @auth(policy: "page.update.status")
+  """Delete Page EP deletes Page that is given ID and returns it"""
+  deletePage(Id: ID!): Page! @goField(forceResolver: true) @auth(policy: "page.delete")
+}
+
+enum PageType {
+  """No Type"""
+	NONE
+}
+
+enum PageSortField {
+  """No Type"""
+	None
+  """Id"""
+	Id
+  """Created Time"""
+	CreatedAt
+  """Updated Time"""
+	UpdatedAt
+}
+
+enum PageStatus {
+  """No Type"""
+  NONE
+  """Active"""
+  ACTIVE
+  """Inactive"""
+  INACTIVE
+}

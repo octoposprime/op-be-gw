@@ -18,11 +18,12 @@ func (a ServiceAdapter) GetErrors(ctx context.Context) (*pb.Errors, error) {
 	var pbResults pb.Errors
 	loggingErrors := a.GetErrorsDynamic(ctx, "GetLoggingErrors", tconfig.GetInternalConfigInstance().Grpc.LoggerHost, tconfig.GetInternalConfigInstance().Grpc.LoggerPort)
 	userErrors := a.GetErrorsDynamic(ctx, "GetUserErrors", tconfig.GetInternalConfigInstance().Grpc.UserHost, tconfig.GetInternalConfigInstance().Grpc.UserPort)
-	dlrErrors := a.GetErrorsDynamic(ctx, "GetDlrErrors", tconfig.GetInternalConfigInstance().Grpc.DlrHost, tconfig.GetInternalConfigInstance().Grpc.DlrPort)
-
+	bookErrors := a.GetErrorsDynamic(ctx, "GetBookErrors", tconfig.GetInternalConfigInstance().Grpc.BookHost, tconfig.GetInternalConfigInstance().Grpc.BookPort)
+	authenticationErrors := a.GetErrorsDynamic(ctx, "GetAuthenticationErrors", tconfig.GetInternalConfigInstance().Grpc.AuthenticationHost, tconfig.GetInternalConfigInstance().Grpc.AuthenticationPort)
 	pbResults.Errors = append(pbResults.Errors, loggingErrors.Errors...)
 	pbResults.Errors = append(pbResults.Errors, userErrors.Errors...)
-	pbResults.Errors = append(pbResults.Errors, dlrErrors.Errors...)
+	pbResults.Errors = append(pbResults.Errors, bookErrors.Errors...)
+	pbResults.Errors = append(pbResults.Errors, authenticationErrors.Errors...)
 	return &pbResults, nil
 }
 

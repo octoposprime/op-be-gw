@@ -76,8 +76,8 @@ input UserFilterInput {
   SortType: String
   """SortField is the sortable field of the user"""
   SortField: UserSortField
-  """PageInput is used for pagination"""
-  Pagination: PageInput
+  """PaginationInput is used for pagination"""
+  Pagination: PaginationInput
 }
 
 """User represents the basic values of the user"""

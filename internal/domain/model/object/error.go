@@ -9,18 +9,21 @@ import (
 var ERRORS []error = []error{
 	ErrorNone,
 	ErrorUserNotFound,
-	ErrorDlrNotFound,
+	ErrorUnauthorized,
+	ErrorPageNotFound,
 }
 
 const (
-	ErrUser string = "user"
-	ErrDlr  string = "dlr"
+	ErrUser         string = "user"
+	ErrUnauthorized string = "unauthorized"
+	ErrPage         string = "page"
 )
 
 var (
 	ErrorNone         error = nil
+	ErrorUnauthorized error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrUnauthorized)
 	ErrorUserNotFound error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrUser + smodel.ErrSep + smodel.ErrNotFound)
-	ErrorDlrNotFound  error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrDlr + smodel.ErrSep + smodel.ErrNotFound)
+	ErrorPageNotFound error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrPage + smodel.ErrSep + smodel.ErrNotFound)
 )
 
 func GetErrors() []error {

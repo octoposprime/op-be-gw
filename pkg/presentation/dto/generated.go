@@ -58,29 +58,6 @@ type ComplexityRoot struct {
 		Auth func(childComplexity int) int
 	}
 
-	Dlr struct {
-		CreatedAt func(childComplexity int) int
-		DlrBase   func(childComplexity int) int
-		DlrCore   func(childComplexity int) int
-		DlrStatus func(childComplexity int) int
-		DlrType   func(childComplexity int) int
-		ID        func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
-	}
-
-	DlrBase struct {
-		Tags func(childComplexity int) int
-	}
-
-	DlrCore struct {
-		DlrData func(childComplexity int) int
-	}
-
-	Dlrs struct {
-		Dlrs  func(childComplexity int) int
-		Total func(childComplexity int) int
-	}
-
 	Error struct {
 		Error func(childComplexity int) int
 	}
@@ -94,19 +71,42 @@ type ComplexityRoot struct {
 	Mutation struct {
 		Auth               func(childComplexity int) int
 		ChangeUserPassword func(childComplexity int, userPassword presentation.UserPasswordInput) int
-		CreateDlr          func(childComplexity int, dlr presentation.DlrInput) int
+		CreatePage         func(childComplexity int, page presentation.PageInput) int
 		CreateUser         func(childComplexity int, user presentation.UserInput) int
-		DeleteDlr          func(childComplexity int, id string) int
+		DeletePage         func(childComplexity int, id string) int
 		DeleteUser         func(childComplexity int, id string) int
 		Login              func(childComplexity int, loginRequest presentation.LoginRequestInput) int
 		Logout             func(childComplexity int, token presentation.TokenInput) int
 		Refresh            func(childComplexity int, token presentation.TokenInput) int
-		UpdateDlrBase      func(childComplexity int, dlr presentation.DlrInput) int
-		UpdateDlrCore      func(childComplexity int, dlr presentation.DlrInput) int
-		UpdateDlrStatus    func(childComplexity int, dlr presentation.DlrInput) int
+		UpdatePageBase     func(childComplexity int, page presentation.PageInput) int
+		UpdatePageCore     func(childComplexity int, page presentation.PageInput) int
+		UpdatePageStatus   func(childComplexity int, page presentation.PageInput) int
 		UpdateUserBase     func(childComplexity int, user presentation.UserInput) int
 		UpdateUserRole     func(childComplexity int, user presentation.UserInput) int
 		UpdateUserStatus   func(childComplexity int, user presentation.UserInput) int
+	}
+
+	Page struct {
+		CreatedAt  func(childComplexity int) int
+		ID         func(childComplexity int) int
+		PageBase   func(childComplexity int) int
+		PageCore   func(childComplexity int) int
+		PageStatus func(childComplexity int) int
+		PageType   func(childComplexity int) int
+		UpdatedAt  func(childComplexity int) int
+	}
+
+	PageBase struct {
+		Tags func(childComplexity int) int
+	}
+
+	PageCore struct {
+		PageData func(childComplexity int) int
+	}
+
+	Pages struct {
+		Pages func(childComplexity int) int
+		Total func(childComplexity int) int
 	}
 
 	Permission struct {
@@ -120,9 +120,9 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Auth   func(childComplexity int) int
-		Dlr    func(childComplexity int, id string) int
-		Dlrs   func(childComplexity int, filter *presentation.DlrFilterInput) int
 		Errors func(childComplexity int) int
+		Page   func(childComplexity int, id string) int
+		Pages  func(childComplexity int, filter *presentation.PageFilterInput) int
 		Roles  func(childComplexity int, filter *presentation.RoleFilterInput) int
 		User   func(childComplexity int, id string) int
 		Users  func(childComplexity int, filter *presentation.UserFilterInput) int
@@ -181,11 +181,11 @@ type MutationResolver interface {
 	Login(ctx context.Context, loginRequest presentation.LoginRequestInput) (*presentation.Token, error)
 	Refresh(ctx context.Context, token presentation.TokenInput) (*presentation.Token, error)
 	Logout(ctx context.Context, token presentation.TokenInput) (*bool, error)
-	CreateDlr(ctx context.Context, dlr presentation.DlrInput) (*presentation.Dlr, error)
-	UpdateDlrBase(ctx context.Context, dlr presentation.DlrInput) (*presentation.Dlr, error)
-	UpdateDlrCore(ctx context.Context, dlr presentation.DlrInput) (*presentation.Dlr, error)
-	UpdateDlrStatus(ctx context.Context, dlr presentation.DlrInput) (*presentation.Dlr, error)
-	DeleteDlr(ctx context.Context, id string) (*presentation.Dlr, error)
+	CreatePage(ctx context.Context, page presentation.PageInput) (*presentation.Page, error)
+	UpdatePageBase(ctx context.Context, page presentation.PageInput) (*presentation.Page, error)
+	UpdatePageCore(ctx context.Context, page presentation.PageInput) (*presentation.Page, error)
+	UpdatePageStatus(ctx context.Context, page presentation.PageInput) (*presentation.Page, error)
+	DeletePage(ctx context.Context, id string) (*presentation.Page, error)
 	CreateUser(ctx context.Context, user presentation.UserInput) (*presentation.User, error)
 	UpdateUserRole(ctx context.Context, user presentation.UserInput) (*presentation.User, error)
 	UpdateUserBase(ctx context.Context, user presentation.UserInput) (*presentation.User, error)
@@ -196,8 +196,8 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Auth(ctx context.Context) (*presentation.AuthOps, error)
 	Roles(ctx context.Context, filter *presentation.RoleFilterInput) ([]*presentation.Role, error)
-	Dlr(ctx context.Context, id string) (*presentation.Dlr, error)
-	Dlrs(ctx context.Context, filter *presentation.DlrFilterInput) (*presentation.Dlrs, error)
+	Page(ctx context.Context, id string) (*presentation.Page, error)
+	Pages(ctx context.Context, filter *presentation.PageFilterInput) (*presentation.Pages, error)
 	Errors(ctx context.Context) ([]*presentation.Error, error)
 	User(ctx context.Context, id string) (*presentation.User, error)
 	Users(ctx context.Context, filter *presentation.UserFilterInput) (*presentation.Users, error)
@@ -231,83 +231,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuthOps.Auth(childComplexity), true
-
-	case "Dlr.CreatedAt":
-		if e.complexity.Dlr.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.Dlr.CreatedAt(childComplexity), true
-
-	case "Dlr.DlrBase":
-		if e.complexity.Dlr.DlrBase == nil {
-			break
-		}
-
-		return e.complexity.Dlr.DlrBase(childComplexity), true
-
-	case "Dlr.DlrCore":
-		if e.complexity.Dlr.DlrCore == nil {
-			break
-		}
-
-		return e.complexity.Dlr.DlrCore(childComplexity), true
-
-	case "Dlr.DlrStatus":
-		if e.complexity.Dlr.DlrStatus == nil {
-			break
-		}
-
-		return e.complexity.Dlr.DlrStatus(childComplexity), true
-
-	case "Dlr.DlrType":
-		if e.complexity.Dlr.DlrType == nil {
-			break
-		}
-
-		return e.complexity.Dlr.DlrType(childComplexity), true
-
-	case "Dlr.Id":
-		if e.complexity.Dlr.ID == nil {
-			break
-		}
-
-		return e.complexity.Dlr.ID(childComplexity), true
-
-	case "Dlr.UpdatedAt":
-		if e.complexity.Dlr.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.Dlr.UpdatedAt(childComplexity), true
-
-	case "DlrBase.Tags":
-		if e.complexity.DlrBase.Tags == nil {
-			break
-		}
-
-		return e.complexity.DlrBase.Tags(childComplexity), true
-
-	case "DlrCore.DlrData":
-		if e.complexity.DlrCore.DlrData == nil {
-			break
-		}
-
-		return e.complexity.DlrCore.DlrData(childComplexity), true
-
-	case "Dlrs.Dlrs":
-		if e.complexity.Dlrs.Dlrs == nil {
-			break
-		}
-
-		return e.complexity.Dlrs.Dlrs(childComplexity), true
-
-	case "Dlrs.Total":
-		if e.complexity.Dlrs.Total == nil {
-			break
-		}
-
-		return e.complexity.Dlrs.Total(childComplexity), true
 
 	case "Error.Error":
 		if e.complexity.Error.Error == nil {
@@ -356,17 +279,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.ChangeUserPassword(childComplexity, args["userPassword"].(presentation.UserPasswordInput)), true
 
-	case "Mutation.createDlr":
-		if e.complexity.Mutation.CreateDlr == nil {
+	case "Mutation.createPage":
+		if e.complexity.Mutation.CreatePage == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createDlr_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createPage_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateDlr(childComplexity, args["dlr"].(presentation.DlrInput)), true
+		return e.complexity.Mutation.CreatePage(childComplexity, args["page"].(presentation.PageInput)), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -380,17 +303,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["user"].(presentation.UserInput)), true
 
-	case "Mutation.deleteDlr":
-		if e.complexity.Mutation.DeleteDlr == nil {
+	case "Mutation.deletePage":
+		if e.complexity.Mutation.DeletePage == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteDlr_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deletePage_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteDlr(childComplexity, args["Id"].(string)), true
+		return e.complexity.Mutation.DeletePage(childComplexity, args["Id"].(string)), true
 
 	case "Mutation.deleteUser":
 		if e.complexity.Mutation.DeleteUser == nil {
@@ -440,41 +363,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Refresh(childComplexity, args["token"].(presentation.TokenInput)), true
 
-	case "Mutation.updateDlrBase":
-		if e.complexity.Mutation.UpdateDlrBase == nil {
+	case "Mutation.updatePageBase":
+		if e.complexity.Mutation.UpdatePageBase == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateDlrBase_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updatePageBase_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateDlrBase(childComplexity, args["dlr"].(presentation.DlrInput)), true
+		return e.complexity.Mutation.UpdatePageBase(childComplexity, args["page"].(presentation.PageInput)), true
 
-	case "Mutation.updateDlrCore":
-		if e.complexity.Mutation.UpdateDlrCore == nil {
+	case "Mutation.updatePageCore":
+		if e.complexity.Mutation.UpdatePageCore == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateDlrCore_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updatePageCore_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateDlrCore(childComplexity, args["dlr"].(presentation.DlrInput)), true
+		return e.complexity.Mutation.UpdatePageCore(childComplexity, args["page"].(presentation.PageInput)), true
 
-	case "Mutation.updateDlrStatus":
-		if e.complexity.Mutation.UpdateDlrStatus == nil {
+	case "Mutation.updatePageStatus":
+		if e.complexity.Mutation.UpdatePageStatus == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateDlrStatus_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updatePageStatus_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateDlrStatus(childComplexity, args["dlr"].(presentation.DlrInput)), true
+		return e.complexity.Mutation.UpdatePageStatus(childComplexity, args["page"].(presentation.PageInput)), true
 
 	case "Mutation.updateUserBase":
 		if e.complexity.Mutation.UpdateUserBase == nil {
@@ -512,6 +435,83 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateUserStatus(childComplexity, args["user"].(presentation.UserInput)), true
 
+	case "Page.CreatedAt":
+		if e.complexity.Page.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Page.CreatedAt(childComplexity), true
+
+	case "Page.Id":
+		if e.complexity.Page.ID == nil {
+			break
+		}
+
+		return e.complexity.Page.ID(childComplexity), true
+
+	case "Page.PageBase":
+		if e.complexity.Page.PageBase == nil {
+			break
+		}
+
+		return e.complexity.Page.PageBase(childComplexity), true
+
+	case "Page.PageCore":
+		if e.complexity.Page.PageCore == nil {
+			break
+		}
+
+		return e.complexity.Page.PageCore(childComplexity), true
+
+	case "Page.PageStatus":
+		if e.complexity.Page.PageStatus == nil {
+			break
+		}
+
+		return e.complexity.Page.PageStatus(childComplexity), true
+
+	case "Page.PageType":
+		if e.complexity.Page.PageType == nil {
+			break
+		}
+
+		return e.complexity.Page.PageType(childComplexity), true
+
+	case "Page.UpdatedAt":
+		if e.complexity.Page.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Page.UpdatedAt(childComplexity), true
+
+	case "PageBase.Tags":
+		if e.complexity.PageBase.Tags == nil {
+			break
+		}
+
+		return e.complexity.PageBase.Tags(childComplexity), true
+
+	case "PageCore.PageData":
+		if e.complexity.PageCore.PageData == nil {
+			break
+		}
+
+		return e.complexity.PageCore.PageData(childComplexity), true
+
+	case "Pages.Pages":
+		if e.complexity.Pages.Pages == nil {
+			break
+		}
+
+		return e.complexity.Pages.Pages(childComplexity), true
+
+	case "Pages.Total":
+		if e.complexity.Pages.Total == nil {
+			break
+		}
+
+		return e.complexity.Pages.Total(childComplexity), true
+
 	case "Permission.Policy":
 		if e.complexity.Permission.Policy == nil {
 			break
@@ -540,36 +540,36 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Auth(childComplexity), true
 
-	case "Query.dlr":
-		if e.complexity.Query.Dlr == nil {
-			break
-		}
-
-		args, err := ec.field_Query_dlr_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Dlr(childComplexity, args["Id"].(string)), true
-
-	case "Query.dlrs":
-		if e.complexity.Query.Dlrs == nil {
-			break
-		}
-
-		args, err := ec.field_Query_dlrs_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Dlrs(childComplexity, args["filter"].(*presentation.DlrFilterInput)), true
-
 	case "Query.errors":
 		if e.complexity.Query.Errors == nil {
 			break
 		}
 
 		return e.complexity.Query.Errors(childComplexity), true
+
+	case "Query.page":
+		if e.complexity.Query.Page == nil {
+			break
+		}
+
+		args, err := ec.field_Query_page_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Page(childComplexity, args["Id"].(string)), true
+
+	case "Query.pages":
+		if e.complexity.Query.Pages == nil {
+			break
+		}
+
+		args, err := ec.field_Query_pages_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Pages(childComplexity, args["filter"].(*presentation.PageFilterInput)), true
 
 	case "Query.roles":
 		if e.complexity.Query.Roles == nil {
@@ -776,12 +776,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputDlrBaseInput,
-		ec.unmarshalInputDlrCoreInput,
-		ec.unmarshalInputDlrFilterInput,
-		ec.unmarshalInputDlrInput,
 		ec.unmarshalInputLoginRequestInput,
+		ec.unmarshalInputPageBaseInput,
+		ec.unmarshalInputPageCoreInput,
+		ec.unmarshalInputPageFilterInput,
 		ec.unmarshalInputPageInput,
+		ec.unmarshalInputPaginationInput,
 		ec.unmarshalInputRoleFilterInput,
 		ec.unmarshalInputTokenInput,
 		ec.unmarshalInputUserBaseInput,
@@ -901,7 +901,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "schema/authentication.graphql" "schema/authorization.graphql" "schema/dlr.graphql" "schema/error.graphql" "schema/pagination.graphql" "schema/schema.graphql" "schema/user.graphql"
+//go:embed "schema/authentication.graphql" "schema/authorization.graphql" "schema/book.graphql" "schema/error.graphql" "schema/pagination.graphql" "schema/schema.graphql" "schema/user.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -915,7 +915,7 @@ func sourceData(filename string) string {
 var sources = []*ast.Source{
 	{Name: "schema/authentication.graphql", Input: sourceData("schema/authentication.graphql"), BuiltIn: false},
 	{Name: "schema/authorization.graphql", Input: sourceData("schema/authorization.graphql"), BuiltIn: false},
-	{Name: "schema/dlr.graphql", Input: sourceData("schema/dlr.graphql"), BuiltIn: false},
+	{Name: "schema/book.graphql", Input: sourceData("schema/book.graphql"), BuiltIn: false},
 	{Name: "schema/error.graphql", Input: sourceData("schema/error.graphql"), BuiltIn: false},
 	{Name: "schema/pagination.graphql", Input: sourceData("schema/pagination.graphql"), BuiltIn: false},
 	{Name: "schema/schema.graphql", Input: sourceData("schema/schema.graphql"), BuiltIn: false},
@@ -957,18 +957,18 @@ func (ec *executionContext) field_Mutation_changeUserPassword_args(ctx context.C
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_createDlr_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createPage_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 presentation.DlrInput
-	if tmp, ok := rawArgs["dlr"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dlr"))
-		arg0, err = ec.unmarshalNDlrInput2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrInput(ctx, tmp)
+	var arg0 presentation.PageInput
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg0, err = ec.unmarshalNPageInput2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["dlr"] = arg0
+	args["page"] = arg0
 	return args, nil
 }
 
@@ -987,7 +987,7 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteDlr_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deletePage_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -1062,48 +1062,48 @@ func (ec *executionContext) field_Mutation_refresh_args(ctx context.Context, raw
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateDlrBase_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updatePageBase_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 presentation.DlrInput
-	if tmp, ok := rawArgs["dlr"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dlr"))
-		arg0, err = ec.unmarshalNDlrInput2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrInput(ctx, tmp)
+	var arg0 presentation.PageInput
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg0, err = ec.unmarshalNPageInput2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["dlr"] = arg0
+	args["page"] = arg0
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateDlrCore_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updatePageCore_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 presentation.DlrInput
-	if tmp, ok := rawArgs["dlr"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dlr"))
-		arg0, err = ec.unmarshalNDlrInput2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrInput(ctx, tmp)
+	var arg0 presentation.PageInput
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg0, err = ec.unmarshalNPageInput2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["dlr"] = arg0
+	args["page"] = arg0
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateDlrStatus_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updatePageStatus_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 presentation.DlrInput
-	if tmp, ok := rawArgs["dlr"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dlr"))
-		arg0, err = ec.unmarshalNDlrInput2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrInput(ctx, tmp)
+	var arg0 presentation.PageInput
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg0, err = ec.unmarshalNPageInput2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["dlr"] = arg0
+	args["page"] = arg0
 	return args, nil
 }
 
@@ -1167,7 +1167,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_dlr_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_page_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -1182,13 +1182,13 @@ func (ec *executionContext) field_Query_dlr_args(ctx context.Context, rawArgs ma
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_dlrs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_pages_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *presentation.DlrFilterInput
+	var arg0 *presentation.PageFilterInput
 	if tmp, ok := rawArgs["filter"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg0, err = ec.unmarshalODlrFilterInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrFilterInput(ctx, tmp)
+		arg0, err = ec.unmarshalOPageFilterInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageFilterInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1319,514 +1319,6 @@ func (ec *executionContext) fieldContext_AuthOps_Auth(ctx context.Context, field
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Dlr_Id(ctx context.Context, field graphql.CollectedField, obj *presentation.Dlr) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Dlr_Id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Dlr_Id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Dlr",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Dlr_DlrType(ctx context.Context, field graphql.CollectedField, obj *presentation.Dlr) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Dlr_DlrType(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DlrType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(presentation.DlrType)
-	fc.Result = res
-	return ec.marshalNDlrType2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Dlr_DlrType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Dlr",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DlrType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Dlr_DlrStatus(ctx context.Context, field graphql.CollectedField, obj *presentation.Dlr) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Dlr_DlrStatus(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DlrStatus, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(presentation.DlrStatus)
-	fc.Result = res
-	return ec.marshalNDlrStatus2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrStatus(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Dlr_DlrStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Dlr",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DlrStatus does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Dlr_DlrBase(ctx context.Context, field graphql.CollectedField, obj *presentation.Dlr) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Dlr_DlrBase(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DlrBase, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*presentation.DlrBase)
-	fc.Result = res
-	return ec.marshalNDlrBase2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrBase(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Dlr_DlrBase(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Dlr",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "Tags":
-				return ec.fieldContext_DlrBase_Tags(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type DlrBase", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Dlr_DlrCore(ctx context.Context, field graphql.CollectedField, obj *presentation.Dlr) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Dlr_DlrCore(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DlrCore, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*presentation.DlrCore)
-	fc.Result = res
-	return ec.marshalNDlrCore2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrCore(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Dlr_DlrCore(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Dlr",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "DlrData":
-				return ec.fieldContext_DlrCore_DlrData(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type DlrCore", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Dlr_CreatedAt(ctx context.Context, field graphql.CollectedField, obj *presentation.Dlr) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Dlr_CreatedAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTimestamp2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Dlr_CreatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Dlr",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Timestamp does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Dlr_UpdatedAt(ctx context.Context, field graphql.CollectedField, obj *presentation.Dlr) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Dlr_UpdatedAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTimestamp2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Dlr_UpdatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Dlr",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Timestamp does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _DlrBase_Tags(ctx context.Context, field graphql.CollectedField, obj *presentation.DlrBase) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_DlrBase_Tags(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Tags, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_DlrBase_Tags(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "DlrBase",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _DlrCore_DlrData(ctx context.Context, field graphql.CollectedField, obj *presentation.DlrCore) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_DlrCore_DlrData(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DlrData, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_DlrCore_DlrData(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "DlrCore",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Dlrs_Total(ctx context.Context, field graphql.CollectedField, obj *presentation.Dlrs) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Dlrs_Total(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Total, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int32)
-	fc.Result = res
-	return ec.marshalNInt2int32(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Dlrs_Total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Dlrs",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Dlrs_Dlrs(ctx context.Context, field graphql.CollectedField, obj *presentation.Dlrs) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Dlrs_Dlrs(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Dlrs, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*presentation.Dlr)
-	fc.Result = res
-	return ec.marshalNDlr2ᚕᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Dlrs_Dlrs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Dlrs",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "Id":
-				return ec.fieldContext_Dlr_Id(ctx, field)
-			case "DlrType":
-				return ec.fieldContext_Dlr_DlrType(ctx, field)
-			case "DlrStatus":
-				return ec.fieldContext_Dlr_DlrStatus(ctx, field)
-			case "DlrBase":
-				return ec.fieldContext_Dlr_DlrBase(ctx, field)
-			case "DlrCore":
-				return ec.fieldContext_Dlr_DlrCore(ctx, field)
-			case "CreatedAt":
-				return ec.fieldContext_Dlr_CreatedAt(ctx, field)
-			case "UpdatedAt":
-				return ec.fieldContext_Dlr_UpdatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Dlr", field.Name)
 		},
 	}
 	return fc, nil
@@ -2230,8 +1722,8 @@ func (ec *executionContext) fieldContext_Mutation_logout(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createDlr(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createDlr(ctx, field)
+func (ec *executionContext) _Mutation_createPage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createPage(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2245,10 +1737,10 @@ func (ec *executionContext) _Mutation_createDlr(ctx context.Context, field graph
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().CreateDlr(rctx, fc.Args["dlr"].(presentation.DlrInput))
+			return ec.resolvers.Mutation().CreatePage(rctx, fc.Args["page"].(presentation.PageInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			policy, err := ec.unmarshalNString2string(ctx, "dlr.create")
+			policy, err := ec.unmarshalNString2string(ctx, "page.create")
 			if err != nil {
 				return nil, err
 			}
@@ -2265,10 +1757,10 @@ func (ec *executionContext) _Mutation_createDlr(ctx context.Context, field graph
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*presentation.Dlr); ok {
+		if data, ok := tmp.(*presentation.Page); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Dlr`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Page`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2280,12 +1772,12 @@ func (ec *executionContext) _Mutation_createDlr(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*presentation.Dlr)
+	res := resTmp.(*presentation.Page)
 	fc.Result = res
-	return ec.marshalNDlr2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlr(ctx, field.Selections, res)
+	return ec.marshalNPage2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPage(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createDlr(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createPage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2294,21 +1786,21 @@ func (ec *executionContext) fieldContext_Mutation_createDlr(ctx context.Context,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "Id":
-				return ec.fieldContext_Dlr_Id(ctx, field)
-			case "DlrType":
-				return ec.fieldContext_Dlr_DlrType(ctx, field)
-			case "DlrStatus":
-				return ec.fieldContext_Dlr_DlrStatus(ctx, field)
-			case "DlrBase":
-				return ec.fieldContext_Dlr_DlrBase(ctx, field)
-			case "DlrCore":
-				return ec.fieldContext_Dlr_DlrCore(ctx, field)
+				return ec.fieldContext_Page_Id(ctx, field)
+			case "PageType":
+				return ec.fieldContext_Page_PageType(ctx, field)
+			case "PageStatus":
+				return ec.fieldContext_Page_PageStatus(ctx, field)
+			case "PageBase":
+				return ec.fieldContext_Page_PageBase(ctx, field)
+			case "PageCore":
+				return ec.fieldContext_Page_PageCore(ctx, field)
 			case "CreatedAt":
-				return ec.fieldContext_Dlr_CreatedAt(ctx, field)
+				return ec.fieldContext_Page_CreatedAt(ctx, field)
 			case "UpdatedAt":
-				return ec.fieldContext_Dlr_UpdatedAt(ctx, field)
+				return ec.fieldContext_Page_UpdatedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Dlr", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
 		},
 	}
 	defer func() {
@@ -2318,15 +1810,15 @@ func (ec *executionContext) fieldContext_Mutation_createDlr(ctx context.Context,
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createDlr_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createPage_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateDlrBase(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateDlrBase(ctx, field)
+func (ec *executionContext) _Mutation_updatePageBase(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updatePageBase(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2340,10 +1832,10 @@ func (ec *executionContext) _Mutation_updateDlrBase(ctx context.Context, field g
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().UpdateDlrBase(rctx, fc.Args["dlr"].(presentation.DlrInput))
+			return ec.resolvers.Mutation().UpdatePageBase(rctx, fc.Args["page"].(presentation.PageInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			policy, err := ec.unmarshalNString2string(ctx, "dlr.update.base")
+			policy, err := ec.unmarshalNString2string(ctx, "page.update.base")
 			if err != nil {
 				return nil, err
 			}
@@ -2360,10 +1852,10 @@ func (ec *executionContext) _Mutation_updateDlrBase(ctx context.Context, field g
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*presentation.Dlr); ok {
+		if data, ok := tmp.(*presentation.Page); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Dlr`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Page`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2375,12 +1867,12 @@ func (ec *executionContext) _Mutation_updateDlrBase(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*presentation.Dlr)
+	res := resTmp.(*presentation.Page)
 	fc.Result = res
-	return ec.marshalNDlr2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlr(ctx, field.Selections, res)
+	return ec.marshalNPage2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPage(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateDlrBase(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_updatePageBase(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2389,21 +1881,21 @@ func (ec *executionContext) fieldContext_Mutation_updateDlrBase(ctx context.Cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "Id":
-				return ec.fieldContext_Dlr_Id(ctx, field)
-			case "DlrType":
-				return ec.fieldContext_Dlr_DlrType(ctx, field)
-			case "DlrStatus":
-				return ec.fieldContext_Dlr_DlrStatus(ctx, field)
-			case "DlrBase":
-				return ec.fieldContext_Dlr_DlrBase(ctx, field)
-			case "DlrCore":
-				return ec.fieldContext_Dlr_DlrCore(ctx, field)
+				return ec.fieldContext_Page_Id(ctx, field)
+			case "PageType":
+				return ec.fieldContext_Page_PageType(ctx, field)
+			case "PageStatus":
+				return ec.fieldContext_Page_PageStatus(ctx, field)
+			case "PageBase":
+				return ec.fieldContext_Page_PageBase(ctx, field)
+			case "PageCore":
+				return ec.fieldContext_Page_PageCore(ctx, field)
 			case "CreatedAt":
-				return ec.fieldContext_Dlr_CreatedAt(ctx, field)
+				return ec.fieldContext_Page_CreatedAt(ctx, field)
 			case "UpdatedAt":
-				return ec.fieldContext_Dlr_UpdatedAt(ctx, field)
+				return ec.fieldContext_Page_UpdatedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Dlr", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
 		},
 	}
 	defer func() {
@@ -2413,15 +1905,15 @@ func (ec *executionContext) fieldContext_Mutation_updateDlrBase(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateDlrBase_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_updatePageBase_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateDlrCore(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateDlrCore(ctx, field)
+func (ec *executionContext) _Mutation_updatePageCore(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updatePageCore(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2435,10 +1927,10 @@ func (ec *executionContext) _Mutation_updateDlrCore(ctx context.Context, field g
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().UpdateDlrCore(rctx, fc.Args["dlr"].(presentation.DlrInput))
+			return ec.resolvers.Mutation().UpdatePageCore(rctx, fc.Args["page"].(presentation.PageInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			policy, err := ec.unmarshalNString2string(ctx, "dlr.update.core")
+			policy, err := ec.unmarshalNString2string(ctx, "page.update.core")
 			if err != nil {
 				return nil, err
 			}
@@ -2455,10 +1947,10 @@ func (ec *executionContext) _Mutation_updateDlrCore(ctx context.Context, field g
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*presentation.Dlr); ok {
+		if data, ok := tmp.(*presentation.Page); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Dlr`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Page`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2470,12 +1962,12 @@ func (ec *executionContext) _Mutation_updateDlrCore(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*presentation.Dlr)
+	res := resTmp.(*presentation.Page)
 	fc.Result = res
-	return ec.marshalNDlr2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlr(ctx, field.Selections, res)
+	return ec.marshalNPage2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPage(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateDlrCore(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_updatePageCore(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2484,21 +1976,21 @@ func (ec *executionContext) fieldContext_Mutation_updateDlrCore(ctx context.Cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "Id":
-				return ec.fieldContext_Dlr_Id(ctx, field)
-			case "DlrType":
-				return ec.fieldContext_Dlr_DlrType(ctx, field)
-			case "DlrStatus":
-				return ec.fieldContext_Dlr_DlrStatus(ctx, field)
-			case "DlrBase":
-				return ec.fieldContext_Dlr_DlrBase(ctx, field)
-			case "DlrCore":
-				return ec.fieldContext_Dlr_DlrCore(ctx, field)
+				return ec.fieldContext_Page_Id(ctx, field)
+			case "PageType":
+				return ec.fieldContext_Page_PageType(ctx, field)
+			case "PageStatus":
+				return ec.fieldContext_Page_PageStatus(ctx, field)
+			case "PageBase":
+				return ec.fieldContext_Page_PageBase(ctx, field)
+			case "PageCore":
+				return ec.fieldContext_Page_PageCore(ctx, field)
 			case "CreatedAt":
-				return ec.fieldContext_Dlr_CreatedAt(ctx, field)
+				return ec.fieldContext_Page_CreatedAt(ctx, field)
 			case "UpdatedAt":
-				return ec.fieldContext_Dlr_UpdatedAt(ctx, field)
+				return ec.fieldContext_Page_UpdatedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Dlr", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
 		},
 	}
 	defer func() {
@@ -2508,15 +2000,15 @@ func (ec *executionContext) fieldContext_Mutation_updateDlrCore(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateDlrCore_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_updatePageCore_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateDlrStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateDlrStatus(ctx, field)
+func (ec *executionContext) _Mutation_updatePageStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updatePageStatus(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2530,10 +2022,10 @@ func (ec *executionContext) _Mutation_updateDlrStatus(ctx context.Context, field
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().UpdateDlrStatus(rctx, fc.Args["dlr"].(presentation.DlrInput))
+			return ec.resolvers.Mutation().UpdatePageStatus(rctx, fc.Args["page"].(presentation.PageInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			policy, err := ec.unmarshalNString2string(ctx, "dlr.update.status")
+			policy, err := ec.unmarshalNString2string(ctx, "page.update.status")
 			if err != nil {
 				return nil, err
 			}
@@ -2550,10 +2042,10 @@ func (ec *executionContext) _Mutation_updateDlrStatus(ctx context.Context, field
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*presentation.Dlr); ok {
+		if data, ok := tmp.(*presentation.Page); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Dlr`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Page`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2565,12 +2057,12 @@ func (ec *executionContext) _Mutation_updateDlrStatus(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*presentation.Dlr)
+	res := resTmp.(*presentation.Page)
 	fc.Result = res
-	return ec.marshalNDlr2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlr(ctx, field.Selections, res)
+	return ec.marshalNPage2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPage(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateDlrStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_updatePageStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2579,21 +2071,21 @@ func (ec *executionContext) fieldContext_Mutation_updateDlrStatus(ctx context.Co
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "Id":
-				return ec.fieldContext_Dlr_Id(ctx, field)
-			case "DlrType":
-				return ec.fieldContext_Dlr_DlrType(ctx, field)
-			case "DlrStatus":
-				return ec.fieldContext_Dlr_DlrStatus(ctx, field)
-			case "DlrBase":
-				return ec.fieldContext_Dlr_DlrBase(ctx, field)
-			case "DlrCore":
-				return ec.fieldContext_Dlr_DlrCore(ctx, field)
+				return ec.fieldContext_Page_Id(ctx, field)
+			case "PageType":
+				return ec.fieldContext_Page_PageType(ctx, field)
+			case "PageStatus":
+				return ec.fieldContext_Page_PageStatus(ctx, field)
+			case "PageBase":
+				return ec.fieldContext_Page_PageBase(ctx, field)
+			case "PageCore":
+				return ec.fieldContext_Page_PageCore(ctx, field)
 			case "CreatedAt":
-				return ec.fieldContext_Dlr_CreatedAt(ctx, field)
+				return ec.fieldContext_Page_CreatedAt(ctx, field)
 			case "UpdatedAt":
-				return ec.fieldContext_Dlr_UpdatedAt(ctx, field)
+				return ec.fieldContext_Page_UpdatedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Dlr", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
 		},
 	}
 	defer func() {
@@ -2603,15 +2095,15 @@ func (ec *executionContext) fieldContext_Mutation_updateDlrStatus(ctx context.Co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateDlrStatus_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_updatePageStatus_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_deleteDlr(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteDlr(ctx, field)
+func (ec *executionContext) _Mutation_deletePage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deletePage(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2625,10 +2117,10 @@ func (ec *executionContext) _Mutation_deleteDlr(ctx context.Context, field graph
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().DeleteDlr(rctx, fc.Args["Id"].(string))
+			return ec.resolvers.Mutation().DeletePage(rctx, fc.Args["Id"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			policy, err := ec.unmarshalNString2string(ctx, "dlr.delete")
+			policy, err := ec.unmarshalNString2string(ctx, "page.delete")
 			if err != nil {
 				return nil, err
 			}
@@ -2645,10 +2137,10 @@ func (ec *executionContext) _Mutation_deleteDlr(ctx context.Context, field graph
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*presentation.Dlr); ok {
+		if data, ok := tmp.(*presentation.Page); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Dlr`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Page`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2660,12 +2152,12 @@ func (ec *executionContext) _Mutation_deleteDlr(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*presentation.Dlr)
+	res := resTmp.(*presentation.Page)
 	fc.Result = res
-	return ec.marshalNDlr2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlr(ctx, field.Selections, res)
+	return ec.marshalNPage2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPage(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_deleteDlr(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_deletePage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2674,21 +2166,21 @@ func (ec *executionContext) fieldContext_Mutation_deleteDlr(ctx context.Context,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "Id":
-				return ec.fieldContext_Dlr_Id(ctx, field)
-			case "DlrType":
-				return ec.fieldContext_Dlr_DlrType(ctx, field)
-			case "DlrStatus":
-				return ec.fieldContext_Dlr_DlrStatus(ctx, field)
-			case "DlrBase":
-				return ec.fieldContext_Dlr_DlrBase(ctx, field)
-			case "DlrCore":
-				return ec.fieldContext_Dlr_DlrCore(ctx, field)
+				return ec.fieldContext_Page_Id(ctx, field)
+			case "PageType":
+				return ec.fieldContext_Page_PageType(ctx, field)
+			case "PageStatus":
+				return ec.fieldContext_Page_PageStatus(ctx, field)
+			case "PageBase":
+				return ec.fieldContext_Page_PageBase(ctx, field)
+			case "PageCore":
+				return ec.fieldContext_Page_PageCore(ctx, field)
 			case "CreatedAt":
-				return ec.fieldContext_Dlr_CreatedAt(ctx, field)
+				return ec.fieldContext_Page_CreatedAt(ctx, field)
 			case "UpdatedAt":
-				return ec.fieldContext_Dlr_UpdatedAt(ctx, field)
+				return ec.fieldContext_Page_UpdatedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Dlr", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
 		},
 	}
 	defer func() {
@@ -2698,7 +2190,7 @@ func (ec *executionContext) fieldContext_Mutation_deleteDlr(ctx context.Context,
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteDlr_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_deletePage_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3276,6 +2768,514 @@ func (ec *executionContext) fieldContext_Mutation_changeUserPassword(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _Page_Id(ctx context.Context, field graphql.CollectedField, obj *presentation.Page) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Page_Id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Page_Id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Page",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Page_PageType(ctx context.Context, field graphql.CollectedField, obj *presentation.Page) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Page_PageType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(presentation.PageType)
+	fc.Result = res
+	return ec.marshalNPageType2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Page_PageType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Page",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type PageType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Page_PageStatus(ctx context.Context, field graphql.CollectedField, obj *presentation.Page) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Page_PageStatus(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageStatus, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(presentation.PageStatus)
+	fc.Result = res
+	return ec.marshalNPageStatus2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Page_PageStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Page",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type PageStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Page_PageBase(ctx context.Context, field graphql.CollectedField, obj *presentation.Page) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Page_PageBase(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageBase, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*presentation.PageBase)
+	fc.Result = res
+	return ec.marshalNPageBase2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageBase(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Page_PageBase(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Page",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Tags":
+				return ec.fieldContext_PageBase_Tags(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageBase", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Page_PageCore(ctx context.Context, field graphql.CollectedField, obj *presentation.Page) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Page_PageCore(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageCore, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*presentation.PageCore)
+	fc.Result = res
+	return ec.marshalNPageCore2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageCore(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Page_PageCore(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Page",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "PageData":
+				return ec.fieldContext_PageCore_PageData(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageCore", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Page_CreatedAt(ctx context.Context, field graphql.CollectedField, obj *presentation.Page) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Page_CreatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTimestamp2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Page_CreatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Page",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Page_UpdatedAt(ctx context.Context, field graphql.CollectedField, obj *presentation.Page) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Page_UpdatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTimestamp2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Page_UpdatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Page",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PageBase_Tags(ctx context.Context, field graphql.CollectedField, obj *presentation.PageBase) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PageBase_Tags(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Tags, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PageBase_Tags(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PageBase",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PageCore_PageData(ctx context.Context, field graphql.CollectedField, obj *presentation.PageCore) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PageCore_PageData(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageData, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PageCore_PageData(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PageCore",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Pages_Total(ctx context.Context, field graphql.CollectedField, obj *presentation.Pages) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Pages_Total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Pages_Total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Pages",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Pages_Pages(ctx context.Context, field graphql.CollectedField, obj *presentation.Pages) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Pages_Pages(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Pages, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*presentation.Page)
+	fc.Result = res
+	return ec.marshalNPage2ᚕᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Pages_Pages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Pages",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Id":
+				return ec.fieldContext_Page_Id(ctx, field)
+			case "PageType":
+				return ec.fieldContext_Page_PageType(ctx, field)
+			case "PageStatus":
+				return ec.fieldContext_Page_PageStatus(ctx, field)
+			case "PageBase":
+				return ec.fieldContext_Page_PageBase(ctx, field)
+			case "PageCore":
+				return ec.fieldContext_Page_PageCore(ctx, field)
+			case "CreatedAt":
+				return ec.fieldContext_Page_CreatedAt(ctx, field)
+			case "UpdatedAt":
+				return ec.fieldContext_Page_UpdatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Permission_Policy(ctx context.Context, field graphql.CollectedField, obj *presentation.Permission) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Permission_Policy(ctx, field)
 	if err != nil {
@@ -3545,8 +3545,8 @@ func (ec *executionContext) fieldContext_Query_roles(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_dlr(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_dlr(ctx, field)
+func (ec *executionContext) _Query_page(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_page(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3560,10 +3560,10 @@ func (ec *executionContext) _Query_dlr(ctx context.Context, field graphql.Collec
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Dlr(rctx, fc.Args["Id"].(string))
+			return ec.resolvers.Query().Page(rctx, fc.Args["Id"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			policy, err := ec.unmarshalNString2string(ctx, "dlr.read")
+			policy, err := ec.unmarshalNString2string(ctx, "page.read")
 			if err != nil {
 				return nil, err
 			}
@@ -3580,10 +3580,10 @@ func (ec *executionContext) _Query_dlr(ctx context.Context, field graphql.Collec
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*presentation.Dlr); ok {
+		if data, ok := tmp.(*presentation.Page); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Dlr`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Page`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3595,12 +3595,12 @@ func (ec *executionContext) _Query_dlr(ctx context.Context, field graphql.Collec
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*presentation.Dlr)
+	res := resTmp.(*presentation.Page)
 	fc.Result = res
-	return ec.marshalNDlr2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlr(ctx, field.Selections, res)
+	return ec.marshalNPage2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPage(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_dlr(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3609,21 +3609,21 @@ func (ec *executionContext) fieldContext_Query_dlr(ctx context.Context, field gr
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "Id":
-				return ec.fieldContext_Dlr_Id(ctx, field)
-			case "DlrType":
-				return ec.fieldContext_Dlr_DlrType(ctx, field)
-			case "DlrStatus":
-				return ec.fieldContext_Dlr_DlrStatus(ctx, field)
-			case "DlrBase":
-				return ec.fieldContext_Dlr_DlrBase(ctx, field)
-			case "DlrCore":
-				return ec.fieldContext_Dlr_DlrCore(ctx, field)
+				return ec.fieldContext_Page_Id(ctx, field)
+			case "PageType":
+				return ec.fieldContext_Page_PageType(ctx, field)
+			case "PageStatus":
+				return ec.fieldContext_Page_PageStatus(ctx, field)
+			case "PageBase":
+				return ec.fieldContext_Page_PageBase(ctx, field)
+			case "PageCore":
+				return ec.fieldContext_Page_PageCore(ctx, field)
 			case "CreatedAt":
-				return ec.fieldContext_Dlr_CreatedAt(ctx, field)
+				return ec.fieldContext_Page_CreatedAt(ctx, field)
 			case "UpdatedAt":
-				return ec.fieldContext_Dlr_UpdatedAt(ctx, field)
+				return ec.fieldContext_Page_UpdatedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Dlr", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
 		},
 	}
 	defer func() {
@@ -3633,15 +3633,15 @@ func (ec *executionContext) fieldContext_Query_dlr(ctx context.Context, field gr
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_dlr_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_page_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_dlrs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_dlrs(ctx, field)
+func (ec *executionContext) _Query_pages(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_pages(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3655,10 +3655,10 @@ func (ec *executionContext) _Query_dlrs(ctx context.Context, field graphql.Colle
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Dlrs(rctx, fc.Args["filter"].(*presentation.DlrFilterInput))
+			return ec.resolvers.Query().Pages(rctx, fc.Args["filter"].(*presentation.PageFilterInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			policy, err := ec.unmarshalNString2string(ctx, "dlr.list")
+			policy, err := ec.unmarshalNString2string(ctx, "page.list")
 			if err != nil {
 				return nil, err
 			}
@@ -3675,10 +3675,10 @@ func (ec *executionContext) _Query_dlrs(ctx context.Context, field graphql.Colle
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*presentation.Dlrs); ok {
+		if data, ok := tmp.(*presentation.Pages); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Dlrs`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/octoposprime/op-be-graphql/pkg/presentation/dto/model.Pages`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3690,12 +3690,12 @@ func (ec *executionContext) _Query_dlrs(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*presentation.Dlrs)
+	res := resTmp.(*presentation.Pages)
 	fc.Result = res
-	return ec.marshalNDlrs2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrs(ctx, field.Selections, res)
+	return ec.marshalNPages2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPages(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_dlrs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_pages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3704,11 +3704,11 @@ func (ec *executionContext) fieldContext_Query_dlrs(ctx context.Context, field g
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "Total":
-				return ec.fieldContext_Dlrs_Total(ctx, field)
-			case "Dlrs":
-				return ec.fieldContext_Dlrs_Dlrs(ctx, field)
+				return ec.fieldContext_Pages_Total(ctx, field)
+			case "Pages":
+				return ec.fieldContext_Pages_Pages(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Dlrs", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Pages", field.Name)
 		},
 	}
 	defer func() {
@@ -3718,7 +3718,7 @@ func (ec *executionContext) fieldContext_Query_dlrs(ctx context.Context, field g
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_dlrs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_pages_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6943,8 +6943,49 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputDlrBaseInput(ctx context.Context, obj interface{}) (presentation.DlrBaseInput, error) {
-	var it presentation.DlrBaseInput
+func (ec *executionContext) unmarshalInputLoginRequestInput(ctx context.Context, obj interface{}) (presentation.LoginRequestInput, error) {
+	var it presentation.LoginRequestInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"UserName", "Email", "Password"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "UserName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("UserName"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserName = data
+		case "Email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Email"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "Password":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Password"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputPageBaseInput(ctx context.Context, obj interface{}) (presentation.PageBaseInput, error) {
+	var it presentation.PageBaseInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -6970,41 +7011,41 @@ func (ec *executionContext) unmarshalInputDlrBaseInput(ctx context.Context, obj 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDlrCoreInput(ctx context.Context, obj interface{}) (presentation.DlrCoreInput, error) {
-	var it presentation.DlrCoreInput
+func (ec *executionContext) unmarshalInputPageCoreInput(ctx context.Context, obj interface{}) (presentation.PageCoreInput, error) {
+	var it presentation.PageCoreInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"DlrData"}
+	fieldsInOrder := [...]string{"PageData"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "DlrData":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("DlrData"))
+		case "PageData":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("PageData"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.DlrData = data
+			it.PageData = data
 		}
 	}
 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDlrFilterInput(ctx context.Context, obj interface{}) (presentation.DlrFilterInput, error) {
-	var it presentation.DlrFilterInput
+func (ec *executionContext) unmarshalInputPageFilterInput(ctx context.Context, obj interface{}) (presentation.PageFilterInput, error) {
+	var it presentation.PageFilterInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"Id", "DlrType", "DlrStatus", "Tags", "CreatedAtFrom", "CreatedAtTo", "UpdatedAtFrom", "UpdatedAtTo", "SearchText", "SortType", "SortField", "Pagination"}
+	fieldsInOrder := [...]string{"Id", "PageType", "PageStatus", "Tags", "CreatedAtFrom", "CreatedAtTo", "UpdatedAtFrom", "UpdatedAtTo", "SearchText", "SortType", "SortField", "Pagination"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7018,20 +7059,20 @@ func (ec *executionContext) unmarshalInputDlrFilterInput(ctx context.Context, ob
 				return it, err
 			}
 			it.ID = data
-		case "DlrType":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("DlrType"))
-			data, err := ec.unmarshalODlrType2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrType(ctx, v)
+		case "PageType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("PageType"))
+			data, err := ec.unmarshalOPageType2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageType(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.DlrType = data
-		case "DlrStatus":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("DlrStatus"))
-			data, err := ec.unmarshalODlrStatus2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrStatus(ctx, v)
+			it.PageType = data
+		case "PageStatus":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("PageStatus"))
+			data, err := ec.unmarshalOPageStatus2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageStatus(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.DlrStatus = data
+			it.PageStatus = data
 		case "Tags":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Tags"))
 			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
@@ -7083,14 +7124,14 @@ func (ec *executionContext) unmarshalInputDlrFilterInput(ctx context.Context, ob
 			it.SortType = data
 		case "SortField":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("SortField"))
-			data, err := ec.unmarshalODlrSortField2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrSortField(ctx, v)
+			data, err := ec.unmarshalOPageSortField2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageSortField(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.SortField = data
 		case "Pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Pagination"))
-			data, err := ec.unmarshalOPageInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageInput(ctx, v)
+			data, err := ec.unmarshalOPaginationInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPaginationInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7101,14 +7142,14 @@ func (ec *executionContext) unmarshalInputDlrFilterInput(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDlrInput(ctx context.Context, obj interface{}) (presentation.DlrInput, error) {
-	var it presentation.DlrInput
+func (ec *executionContext) unmarshalInputPageInput(ctx context.Context, obj interface{}) (presentation.PageInput, error) {
+	var it presentation.PageInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"Id", "DlrType", "DlrStatus", "DlrBase", "DlrCore"}
+	fieldsInOrder := [...]string{"Id", "PageType", "PageStatus", "PageBase", "PageCore"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7122,83 +7163,42 @@ func (ec *executionContext) unmarshalInputDlrInput(ctx context.Context, obj inte
 				return it, err
 			}
 			it.ID = data
-		case "DlrType":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("DlrType"))
-			data, err := ec.unmarshalODlrType2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrType(ctx, v)
+		case "PageType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("PageType"))
+			data, err := ec.unmarshalOPageType2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageType(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.DlrType = data
-		case "DlrStatus":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("DlrStatus"))
-			data, err := ec.unmarshalODlrStatus2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrStatus(ctx, v)
+			it.PageType = data
+		case "PageStatus":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("PageStatus"))
+			data, err := ec.unmarshalOPageStatus2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageStatus(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.DlrStatus = data
-		case "DlrBase":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("DlrBase"))
-			data, err := ec.unmarshalODlrBaseInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrBaseInput(ctx, v)
+			it.PageStatus = data
+		case "PageBase":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("PageBase"))
+			data, err := ec.unmarshalOPageBaseInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageBaseInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.DlrBase = data
-		case "DlrCore":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("DlrCore"))
-			data, err := ec.unmarshalODlrCoreInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrCoreInput(ctx, v)
+			it.PageBase = data
+		case "PageCore":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("PageCore"))
+			data, err := ec.unmarshalOPageCoreInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageCoreInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.DlrCore = data
+			it.PageCore = data
 		}
 	}
 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputLoginRequestInput(ctx context.Context, obj interface{}) (presentation.LoginRequestInput, error) {
-	var it presentation.LoginRequestInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"UserName", "Email", "Password"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "UserName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("UserName"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.UserName = data
-		case "Email":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Email"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Email = data
-		case "Password":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Password"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Password = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputPageInput(ctx context.Context, obj interface{}) (presentation.PageInput, error) {
-	var it presentation.PageInput
+func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, obj interface{}) (presentation.PaginationInput, error) {
+	var it presentation.PaginationInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -7454,7 +7454,7 @@ func (ec *executionContext) unmarshalInputUserFilterInput(ctx context.Context, o
 			it.SortField = data
 		case "Pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Pagination"))
-			data, err := ec.unmarshalOPageInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageInput(ctx, v)
+			data, err := ec.unmarshalOPaginationInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPaginationInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7653,197 +7653,6 @@ func (ec *executionContext) _AuthOps(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
-var dlrImplementors = []string{"Dlr"}
-
-func (ec *executionContext) _Dlr(ctx context.Context, sel ast.SelectionSet, obj *presentation.Dlr) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, dlrImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Dlr")
-		case "Id":
-			out.Values[i] = ec._Dlr_Id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "DlrType":
-			out.Values[i] = ec._Dlr_DlrType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "DlrStatus":
-			out.Values[i] = ec._Dlr_DlrStatus(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "DlrBase":
-			out.Values[i] = ec._Dlr_DlrBase(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "DlrCore":
-			out.Values[i] = ec._Dlr_DlrCore(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "CreatedAt":
-			out.Values[i] = ec._Dlr_CreatedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "UpdatedAt":
-			out.Values[i] = ec._Dlr_UpdatedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var dlrBaseImplementors = []string{"DlrBase"}
-
-func (ec *executionContext) _DlrBase(ctx context.Context, sel ast.SelectionSet, obj *presentation.DlrBase) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, dlrBaseImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("DlrBase")
-		case "Tags":
-			out.Values[i] = ec._DlrBase_Tags(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var dlrCoreImplementors = []string{"DlrCore"}
-
-func (ec *executionContext) _DlrCore(ctx context.Context, sel ast.SelectionSet, obj *presentation.DlrCore) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, dlrCoreImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("DlrCore")
-		case "DlrData":
-			out.Values[i] = ec._DlrCore_DlrData(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var dlrsImplementors = []string{"Dlrs"}
-
-func (ec *executionContext) _Dlrs(ctx context.Context, sel ast.SelectionSet, obj *presentation.Dlrs) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, dlrsImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Dlrs")
-		case "Total":
-			out.Values[i] = ec._Dlrs_Total(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "Dlrs":
-			out.Values[i] = ec._Dlrs_Dlrs(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var errorImplementors = []string{"Error"}
 
 func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, obj *presentation.Error) graphql.Marshaler {
@@ -7976,37 +7785,37 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_logout(ctx, field)
 			})
-		case "createDlr":
+		case "createPage":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createDlr(ctx, field)
+				return ec._Mutation_createPage(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "updateDlrBase":
+		case "updatePageBase":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateDlrBase(ctx, field)
+				return ec._Mutation_updatePageBase(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "updateDlrCore":
+		case "updatePageCore":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateDlrCore(ctx, field)
+				return ec._Mutation_updatePageCore(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "updateDlrStatus":
+		case "updatePageStatus":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateDlrStatus(ctx, field)
+				return ec._Mutation_updatePageStatus(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "deleteDlr":
+		case "deletePage":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteDlr(ctx, field)
+				return ec._Mutation_deletePage(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -8050,6 +7859,197 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_changeUserPassword(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var pageImplementors = []string{"Page"}
+
+func (ec *executionContext) _Page(ctx context.Context, sel ast.SelectionSet, obj *presentation.Page) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, pageImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Page")
+		case "Id":
+			out.Values[i] = ec._Page_Id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "PageType":
+			out.Values[i] = ec._Page_PageType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "PageStatus":
+			out.Values[i] = ec._Page_PageStatus(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "PageBase":
+			out.Values[i] = ec._Page_PageBase(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "PageCore":
+			out.Values[i] = ec._Page_PageCore(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "CreatedAt":
+			out.Values[i] = ec._Page_CreatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "UpdatedAt":
+			out.Values[i] = ec._Page_UpdatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var pageBaseImplementors = []string{"PageBase"}
+
+func (ec *executionContext) _PageBase(ctx context.Context, sel ast.SelectionSet, obj *presentation.PageBase) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, pageBaseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PageBase")
+		case "Tags":
+			out.Values[i] = ec._PageBase_Tags(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var pageCoreImplementors = []string{"PageCore"}
+
+func (ec *executionContext) _PageCore(ctx context.Context, sel ast.SelectionSet, obj *presentation.PageCore) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, pageCoreImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PageCore")
+		case "PageData":
+			out.Values[i] = ec._PageCore_PageData(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var pagesImplementors = []string{"Pages"}
+
+func (ec *executionContext) _Pages(ctx context.Context, sel ast.SelectionSet, obj *presentation.Pages) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, pagesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Pages")
+		case "Total":
+			out.Values[i] = ec._Pages_Total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "Pages":
+			out.Values[i] = ec._Pages_Pages(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8219,7 +8219,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "dlr":
+		case "page":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -8228,7 +8228,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_dlr(ctx, field)
+				res = ec._Query_page(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8241,7 +8241,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "dlrs":
+		case "pages":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -8250,7 +8250,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_dlrs(ctx, field)
+				res = ec._Query_pages(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9049,123 +9049,6 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNDlr2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlr(ctx context.Context, sel ast.SelectionSet, v presentation.Dlr) graphql.Marshaler {
-	return ec._Dlr(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNDlr2ᚕᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrᚄ(ctx context.Context, sel ast.SelectionSet, v []*presentation.Dlr) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNDlr2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlr(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNDlr2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlr(ctx context.Context, sel ast.SelectionSet, v *presentation.Dlr) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Dlr(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNDlrBase2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrBase(ctx context.Context, sel ast.SelectionSet, v *presentation.DlrBase) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._DlrBase(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNDlrCore2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrCore(ctx context.Context, sel ast.SelectionSet, v *presentation.DlrCore) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._DlrCore(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNDlrInput2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrInput(ctx context.Context, v interface{}) (presentation.DlrInput, error) {
-	res, err := ec.unmarshalInputDlrInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNDlrStatus2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrStatus(ctx context.Context, v interface{}) (presentation.DlrStatus, error) {
-	var res presentation.DlrStatus
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNDlrStatus2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrStatus(ctx context.Context, sel ast.SelectionSet, v presentation.DlrStatus) graphql.Marshaler {
-	return v
-}
-
-func (ec *executionContext) unmarshalNDlrType2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrType(ctx context.Context, v interface{}) (presentation.DlrType, error) {
-	var res presentation.DlrType
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNDlrType2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrType(ctx context.Context, sel ast.SelectionSet, v presentation.DlrType) graphql.Marshaler {
-	return v
-}
-
-func (ec *executionContext) marshalNDlrs2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrs(ctx context.Context, sel ast.SelectionSet, v presentation.Dlrs) graphql.Marshaler {
-	return ec._Dlrs(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNDlrs2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrs(ctx context.Context, sel ast.SelectionSet, v *presentation.Dlrs) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Dlrs(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNError2ᚕᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐErrorᚄ(ctx context.Context, sel ast.SelectionSet, v []*presentation.Error) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -9253,6 +9136,123 @@ func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.Selec
 func (ec *executionContext) unmarshalNLoginRequestInput2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐLoginRequestInput(ctx context.Context, v interface{}) (presentation.LoginRequestInput, error) {
 	res, err := ec.unmarshalInputLoginRequestInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPage2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v presentation.Page) graphql.Marshaler {
+	return ec._Page(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPage2ᚕᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageᚄ(ctx context.Context, sel ast.SelectionSet, v []*presentation.Page) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPage2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPage(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNPage2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPage(ctx context.Context, sel ast.SelectionSet, v *presentation.Page) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Page(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPageBase2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageBase(ctx context.Context, sel ast.SelectionSet, v *presentation.PageBase) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PageBase(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPageCore2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageCore(ctx context.Context, sel ast.SelectionSet, v *presentation.PageCore) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PageCore(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNPageInput2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageInput(ctx context.Context, v interface{}) (presentation.PageInput, error) {
+	res, err := ec.unmarshalInputPageInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNPageStatus2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageStatus(ctx context.Context, v interface{}) (presentation.PageStatus, error) {
+	var res presentation.PageStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPageStatus2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageStatus(ctx context.Context, sel ast.SelectionSet, v presentation.PageStatus) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNPageType2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageType(ctx context.Context, v interface{}) (presentation.PageType, error) {
+	var res presentation.PageType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPageType2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageType(ctx context.Context, sel ast.SelectionSet, v presentation.PageType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNPages2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPages(ctx context.Context, sel ast.SelectionSet, v presentation.Pages) graphql.Marshaler {
+	return ec._Pages(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPages2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPages(ctx context.Context, sel ast.SelectionSet, v *presentation.Pages) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Pages(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNPasswordStatus2githubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPasswordStatus(ctx context.Context, v interface{}) (presentation.PasswordStatus, error) {
@@ -9899,78 +9899,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalODlrBaseInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrBaseInput(ctx context.Context, v interface{}) (*presentation.DlrBaseInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputDlrBaseInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalODlrCoreInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrCoreInput(ctx context.Context, v interface{}) (*presentation.DlrCoreInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputDlrCoreInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalODlrFilterInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrFilterInput(ctx context.Context, v interface{}) (*presentation.DlrFilterInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputDlrFilterInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalODlrSortField2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrSortField(ctx context.Context, v interface{}) (*presentation.DlrSortField, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(presentation.DlrSortField)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalODlrSortField2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrSortField(ctx context.Context, sel ast.SelectionSet, v *presentation.DlrSortField) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
-}
-
-func (ec *executionContext) unmarshalODlrStatus2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrStatus(ctx context.Context, v interface{}) (*presentation.DlrStatus, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(presentation.DlrStatus)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalODlrStatus2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrStatus(ctx context.Context, sel ast.SelectionSet, v *presentation.DlrStatus) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
-}
-
-func (ec *executionContext) unmarshalODlrType2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrType(ctx context.Context, v interface{}) (*presentation.DlrType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(presentation.DlrType)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalODlrType2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐDlrType(ctx context.Context, sel ast.SelectionSet, v *presentation.DlrType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
-}
-
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -10003,11 +9931,83 @@ func (ec *executionContext) marshalOInt2ᚖint32(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalOPageInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageInput(ctx context.Context, v interface{}) (*presentation.PageInput, error) {
+func (ec *executionContext) unmarshalOPageBaseInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageBaseInput(ctx context.Context, v interface{}) (*presentation.PageBaseInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputPageInput(ctx, v)
+	res, err := ec.unmarshalInputPageBaseInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOPageCoreInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageCoreInput(ctx context.Context, v interface{}) (*presentation.PageCoreInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPageCoreInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOPageFilterInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageFilterInput(ctx context.Context, v interface{}) (*presentation.PageFilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPageFilterInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOPageSortField2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageSortField(ctx context.Context, v interface{}) (*presentation.PageSortField, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(presentation.PageSortField)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOPageSortField2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageSortField(ctx context.Context, sel ast.SelectionSet, v *presentation.PageSortField) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOPageStatus2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageStatus(ctx context.Context, v interface{}) (*presentation.PageStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(presentation.PageStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOPageStatus2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageStatus(ctx context.Context, sel ast.SelectionSet, v *presentation.PageStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOPageType2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageType(ctx context.Context, v interface{}) (*presentation.PageType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(presentation.PageType)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOPageType2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPageType(ctx context.Context, sel ast.SelectionSet, v *presentation.PageType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOPaginationInput2ᚖgithubᚗcomᚋoctoposprimeᚋopᚑbeᚑgraphqlᚋpkgᚋpresentationᚋdtoᚋmodelᚐPaginationInput(ctx context.Context, v interface{}) (*presentation.PaginationInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPaginationInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

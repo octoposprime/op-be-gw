@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.1
 	github.com/husamettinarabaci/gqltool v1.0.2
-	github.com/octoposprime/op-be-shared v0.0.4
+	github.com/octoposprime/op-be-shared v0.0.5
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/vektah/gqlparser/v2 v2.5.11
 	google.golang.org/grpc v1.61.0
