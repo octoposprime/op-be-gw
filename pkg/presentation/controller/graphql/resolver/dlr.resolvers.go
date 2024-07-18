@@ -33,7 +33,7 @@ func (r *mutationResolver) CreateDlr(ctx context.Context, dlr presentation.DlrIn
 
 // UpdateDlrBase is the resolver for the updateDlrBase field.
 func (r *mutationResolver) UpdateDlrBase(ctx context.Context, dlr presentation.DlrInput) (*presentation.Dlr, error) {
-	userId := ctx.Value(smodel.QueryKeyUid).(string)
+	
 	userType := ctx.Value(smodel.QueryKeyUType).(pb_user.UserType)
 	if userType != pb_user.UserType_UserTypeADMIN {
 		user.ID = &userId
@@ -49,11 +49,8 @@ func (r *mutationResolver) UpdateDlrBase(ctx context.Context, dlr presentation.D
 
 // UpdateDlrCore is the resolver for the updateDlrCore field.
 func (r *mutationResolver) UpdateDlrCore(ctx context.Context, dlr presentation.DlrInput) (*presentation.Dlr, error) {
-	userId := ctx.Value(smodel.QueryKeyUid).(string)
-	userType := ctx.Value(smodel.QueryKeyUType).(pb_user.UserType)
-	if userType != pb_user.UserType_UserTypeADMIN {
-		user.ID = &userId
-	}
+	
+	
 	dtoData := presentation.NewDlrDto(&dlr)
 	resultData, err := r.CommandHandler.UpdateDlrCore(ctx, dtoData.ToPb())
 	if err != nil {
@@ -65,11 +62,7 @@ func (r *mutationResolver) UpdateDlrCore(ctx context.Context, dlr presentation.D
 
 // UpdateDlrStatus is the resolver for the updateDlrStatus field.
 func (r *mutationResolver) UpdateDlrStatus(ctx context.Context, dlr presentation.DlrInput) (*presentation.Dlr, error) {
-	userId := ctx.Value(smodel.QueryKeyUid).(string)
-	userType := ctx.Value(smodel.QueryKeyUType).(pb_user.UserType)
-	if userType != pb_user.UserType_UserTypeADMIN {
-		user.ID = &userId
-	}
+	
 	dtoData := presentation.NewDlrDto(&dlr)
 	resultData, err := r.CommandHandler.UpdateDlrStatus(ctx, dtoData.ToPb())
 	if err != nil {
@@ -82,7 +75,7 @@ func (r *mutationResolver) UpdateDlrStatus(ctx context.Context, dlr presentation
 // DeleteDlr is the resolver for the deleteDlr field.
 func (r *mutationResolver) DeleteDlr(ctx context.Context, id string) (*presentation.Dlr, error) {
 	userId := ctx.Value(smodel.QueryKeyUid).(string)
-	userType := ctx.Value(smodel.QueryKeyUType).(pb_user.UserType)
+	
 	if userType != pb_user.UserType_UserTypeADMIN {
 		id = userId
 	}
@@ -99,11 +92,7 @@ func (r *mutationResolver) DeleteDlr(ctx context.Context, id string) (*presentat
 
 // Dlr is the resolver for the dlr field.
 func (r *queryResolver) Dlr(ctx context.Context, id string) (*presentation.Dlr, error) {
-	userId := ctx.Value(smodel.QueryKeyUid).(string)
-	userType := ctx.Value(smodel.QueryKeyUType).(pb_user.UserType)
-	if userType != pb_user.UserType_UserTypeADMIN {
-		id = userId
-	}
+	
 	var filter presentation.DlrFilterInput
 	filter.ID = &id
 	dtoFilter := presentation.NewDlrFilterDto(&filter)
@@ -122,11 +111,7 @@ func (r *queryResolver) Dlr(ctx context.Context, id string) (*presentation.Dlr, 
 
 // Dlrs is the resolver for the dlrs field.
 func (r *queryResolver) Dlrs(ctx context.Context, filter *presentation.DlrFilterInput) (*presentation.Dlrs, error) {
-	userId := ctx.Value(smodel.QueryKeyUid).(string)
-	userType := ctx.Value(smodel.QueryKeyUType).(pb_user.UserType)
-	if userType != pb_user.UserType_UserTypeADMIN {
-		filter.ID = &userId
-	}
+	
 	var results presentation.Dlrs
 	if filter == nil {
 		filter = &presentation.DlrFilterInput{}
