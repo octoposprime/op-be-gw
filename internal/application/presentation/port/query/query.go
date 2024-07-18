@@ -5,5 +5,5 @@ package application
 type QueryPort interface {
 	ErrorQueryPort
 	UserQueryPort
-	DlrQueryPort
+	BookQueryPort
 }
